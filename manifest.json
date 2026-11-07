@@ -1,0 +1,34 @@
+{
+  "id": "/postecsa-checklist/",
+  "name": "POSTECSA Checklist de Equipos",
+  "short_name": "Checklist",
+  "description": "Lista de chequeo digital de equipos - POSTECSA de Colombia SAS",
+  "start_url": "./index.html?app=1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12304f",
+  "theme_color": "#12304f",
+  "lang": "es-CO",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
