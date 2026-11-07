@@ -11,8 +11,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Checklist">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>POSTECSA Checklist v2.2</title>
-<!-- deploy: 2026-11-06 v2.2 -->
+<title>POSTECSA Checklist v2.3</title>
+<!-- deploy: 2026-11-07 v2.3 -->
 <style>
 :root{--navy:#12304f;--navy2:#1d4a75;--or:#f26a21;--or2:#d4540f;--ok:#2e7d32;--nc:#c62828;--bg:#e9eef4;--ink:#1b2a3a;--mut:#5f6f7f;--line:#dbe3ec}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -85,6 +85,7 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
 .foot{text-align:center;font-size:.78rem;color:#5f6f7f;padding:6px 0 18px}
 .foot a{color:#c4500f;font-weight:700;text-decoration:none}
 .modal{position:fixed;inset:0;background:rgba(10,30,55,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal.hide{display:none}
 .modal .box{background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:20px;border-top:6px solid #f26a21}
 .modal h2{font-size:1.1rem;color:#12304f;margin-bottom:4px}
 .modal .sub{font-size:.8rem;color:#5f6f7f;margin-bottom:10px}
@@ -97,7 +98,7 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
 <body>
 
 <div id="appMain">
-  <div class="header"><img class="logo" src="./logo.png" alt="POSTECSA de Colombia SAS"><h1>Checklist de equipos<small>Mantenimiento y Confiabilidad &middot; FP-15-09</small></h1><span class="ver" id="verTxt">v2.2</span></div>
+  <div class="header"><img class="logo" src="./logo.png" alt="POSTECSA de Colombia SAS"><h1>Checklist de equipos<small>Mantenimiento y Confiabilidad &middot; FP-15-09</small></h1><span class="ver" id="verTxt">v2.3</span></div>
   <div id="sbBanner" class="sandbox-banner hide">MODO PRUEBA &mdash; nada se guarda (PIN 0000)</div>
   <div class="wrap">
 
@@ -207,7 +208,7 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
 
 <script>
 /* ===== CONFIG ===== */
-const VERSION = 'v2.2';
+const VERSION = 'v2.3';
 const SHEET_ID = '1IlxWD6QiCsntzyjEnJfE5KlB36Q39wJsQLnR0HE9gM4';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbw_xoH7HoqvHK4x9RdWJpuTnXXVupxL_dsP08yMw-NBJD3WcZt8Zb1Es13QW4_SSnk0/exec';
 const WA_DESTINOS = [
@@ -285,7 +286,7 @@ let _usuarios = [];
 
 /* ===== UTIL ===== */
 function $(id){ return document.getElementById(id); }
-function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2600); }
+function toast(m,ms){ const t=$('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),ms||2600); }
 function show(id,v){ $(id).classList.toggle('hide', !v); }
 function norm(s){ return String(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
 
@@ -666,13 +667,14 @@ window.addEventListener('beforeinstallprompt',function(e){
 });
 window.addEventListener('appinstalled',function(){ show('cardInstalar',false); toast('App instalada'); });
 async function instalarApp(){
-  if(!_evInstalar){ toast('Usa el menú del navegador > Instalar app'); return; }
+  if(!_evInstalar){ toast('Si ya la instalaste, ábrela desde el ícono POSTECSA en tu pantalla de inicio o en tus apps. Si no, usa el menú ⋮ > Instalar app',6000); return; }
   _evInstalar.prompt(); try{ await _evInstalar.userChoice; }catch(e){} _evInstalar=null; show('cardInstalar',false);
 }
 prepararInstalar();
 
 /* ===== VERSIONES Y NOVEDADES (misma politica que las demas apps) ===== */
 const CHANGELOG = [
+  {v:'v2.3', f:'07/11/2026', n:['Corrige el aviso de novedades: ahora se cierra con Entendido y deja usar la app','Si el celular ya tiene la app instalada, el botón Instalar indica cómo abrirla']},
   {v:'v2.2', f:'06/11/2026', n:['Historial de versiones y aviso de novedades al abrir la app','La versión se ve en la parte de abajo y arriba a la derecha','La dirección anterior redirige a esta']},
   {v:'v2.1', f:'06/11/2026', n:['La app se puede instalar en el celular o el computador (iconos nuevos y botón Instalar)','Dirección propia: acmv0921.github.io/postecsa-checklist/']},
   {v:'v2.0', f:'06/11/2026', n:['Ingreso como en OM: soy operario o supervisor, nombre y PIN','Cada persona ve solo sus áreas y equipos','PIN validado en el servidor con bloqueo tras 5 intentos','Diseño nuevo con el logo de POSTECSA de Colombia']},

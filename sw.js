@@ -1,5 +1,5 @@
 // Service Worker checklist v1.0
-const CACHE_NAME = 'checklist-cache-v4';
+const CACHE_NAME = 'checklist-cache-v5';
 const PRECACHE = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
