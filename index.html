@@ -11,8 +11,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Checklist">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>POSTECSA Checklist v2.0</title>
-<!-- deploy: 2026-11-06 -->
+<title>POSTECSA Checklist v2.2</title>
+<!-- deploy: 2026-11-06 v2.2 -->
 <style>
 :root{--navy:#12304f;--navy2:#1d4a75;--or:#f26a21;--or2:#d4540f;--ok:#2e7d32;--nc:#c62828;--bg:#e9eef4;--ink:#1b2a3a;--mut:#5f6f7f;--line:#dbe3ec}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -82,12 +82,22 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
 .sandbox-banner{background:#e5b400;color:#222;text-align:center;font-size:.8rem;font-weight:700;padding:6px}
 .resumen b{color:var(--nc)}
 .okbig{font-size:2.6rem;text-align:center;margin-bottom:6px}
+.foot{text-align:center;font-size:.78rem;color:#5f6f7f;padding:6px 0 18px}
+.foot a{color:#c4500f;font-weight:700;text-decoration:none}
+.modal{position:fixed;inset:0;background:rgba(10,30,55,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .box{background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:20px;border-top:6px solid #f26a21}
+.modal h2{font-size:1.1rem;color:#12304f;margin-bottom:4px}
+.modal .sub{font-size:.8rem;color:#5f6f7f;margin-bottom:10px}
+.modal .vv{border-top:1px solid #dbe3ec;padding:10px 0}
+.modal .vv b{color:#12304f}
+.modal .vv small{color:#5f6f7f}
+.modal ul{padding-left:20px;font-size:.9rem;line-height:1.4;margin-top:4px}
 </style>
 </head>
 <body>
 
 <div id="appMain">
-  <div class="header"><img class="logo" src="./logo.png" alt="POSTECSA de Colombia SAS"><h1>Checklist de equipos<small>Mantenimiento y Confiabilidad &middot; FP-15-09</small></h1><span class="ver">v2.0</span></div>
+  <div class="header"><img class="logo" src="./logo.png" alt="POSTECSA de Colombia SAS"><h1>Checklist de equipos<small>Mantenimiento y Confiabilidad &middot; FP-15-09</small></h1><span class="ver" id="verTxt">v2.2</span></div>
   <div id="sbBanner" class="sandbox-banner hide">MODO PRUEBA &mdash; nada se guarda (PIN 0000)</div>
   <div class="wrap">
 
@@ -178,6 +188,17 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
       </div>
     </div>
 
+
+    <div class="foot"><span id="footVer"></span> &middot; <a href="#" onclick="verHistorial();return false">Historial de versiones</a></div>
+  </div>
+</div>
+
+<div id="modalVer" class="modal hide">
+  <div class="box">
+    <h2 id="verTitulo"></h2>
+    <div class="sub" id="verSub"></div>
+    <div id="verLista"></div>
+    <button class="btn" type="button" onclick="cerrarVer()">Entendido</button>
   </div>
 </div>
 
@@ -186,7 +207,7 @@ label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px;color:var
 
 <script>
 /* ===== CONFIG ===== */
-const VERSION = 'v2.0';
+const VERSION = 'v2.2';
 const SHEET_ID = '1IlxWD6QiCsntzyjEnJfE5KlB36Q39wJsQLnR0HE9gM4';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbw_xoH7HoqvHK4x9RdWJpuTnXXVupxL_dsP08yMw-NBJD3WcZt8Zb1Es13QW4_SSnk0/exec';
 const WA_DESTINOS = [
@@ -649,6 +670,37 @@ async function instalarApp(){
   _evInstalar.prompt(); try{ await _evInstalar.userChoice; }catch(e){} _evInstalar=null; show('cardInstalar',false);
 }
 prepararInstalar();
+
+/* ===== VERSIONES Y NOVEDADES (misma politica que las demas apps) ===== */
+const CHANGELOG = [
+  {v:'v2.2', f:'06/11/2026', n:['Historial de versiones y aviso de novedades al abrir la app','La versión se ve en la parte de abajo y arriba a la derecha','La dirección anterior redirige a esta']},
+  {v:'v2.1', f:'06/11/2026', n:['La app se puede instalar en el celular o el computador (iconos nuevos y botón Instalar)','Dirección propia: acmv0921.github.io/postecsa-checklist/']},
+  {v:'v2.0', f:'06/11/2026', n:['Ingreso como en OM: soy operario o supervisor, nombre y PIN','Cada persona ve solo sus áreas y equipos','PIN validado en el servidor con bloqueo tras 5 intentos','Diseño nuevo con el logo de POSTECSA de Colombia']},
+  {v:'v1.4', f:'28/10/2026', n:['Listas de chequeo del FP-15-09 por área y equipo (Vehículos, Amarilla, QFT, Postes, Puente grúa, Prefabricados, Castillería)','Mantenimiento periódico y horómetro opcionales']},
+  {v:'v1.0', f:'28/10/2026', n:['Primera versión: inspección por zonas Cumple / No cumple','Foto u observación obligatoria si no cumple','Autorización del supervisor y alerta por WhatsApp']}
+];
+function pintarVer(lista,titulo,sub){
+  $('verTitulo').textContent=titulo; $('verSub').textContent=sub;
+  const c=$('verLista'); c.innerHTML='';
+  lista.forEach(function(e){
+    const d=document.createElement('div'); d.className='vv';
+    d.innerHTML='<b>'+e.v+'</b> <small>'+e.f+'</small><ul>'+e.n.map(function(x){ return '<li>'+x+'</li>'; }).join('')+'</ul>';
+    c.appendChild(d);
+  });
+  show('modalVer',true);
+}
+function verHistorial(){ pintarVer(CHANGELOG,'Historial de versiones','POSTECSA Checklist de equipos'); }
+function cerrarVer(){
+  show('modalVer',false);
+  try{ localStorage.setItem('chk_ver_visto',VERSION); }catch(e){}
+}
+function iniciarVersion(){
+  $('verTxt').textContent=VERSION;
+  $('footVer').textContent='POSTECSA Checklist '+VERSION+' · '+CHANGELOG[0].f;
+  let visto=''; try{ visto=localStorage.getItem('chk_ver_visto')||''; }catch(e){}
+  if(visto!==VERSION) pintarVer([CHANGELOG[0]],'Novedades de '+VERSION,'Esto cambió en esta actualización');
+}
+iniciarVersion();
 
 iniciarApp();
 if('serviceWorker' in navigator){
